@@ -32,7 +32,11 @@ class DIPERLUKAN:
                 'User-Agent': 'Mozilla/5.0',
                 'Cookie': COOKIES["Cookie"]
             })
-            response = session.get('https://zefoy.com/').text
+            try:
+                response = session.get('https://zefoy.com/', timeout=10).text
+            except RequestException as e:
+                printf(f"[bold red]Error al conectar con zefoy.com: {str(e)}")
+                return False
 
             if 'placeholder="Enter Video URL"' in response:
                 self.video_form = re.search(r'name="(.*?)" placeholder="Enter Video URL"', response).group(1)
@@ -54,8 +58,16 @@ class DIPERLUKAN:
                 'Content-Type': f'multipart/form-data; boundary={boundary}'
             })
             data = MultipartEncoder({video_form: (None, video_url)}, boundary=boundary)
-            response = session.post(f'https://zefoy.com/{post_action}', data=data).text
+            try:
+                response = session.post(f'https://zefoy.com/{post_action}', data=data, timeout=10).text
+            except RequestException as e:
+                printf(f"[bold red]Error al enviar datos del video: {str(e)}")
+                return False
+
             html = self.DECRYPTION_BASE64(response)
+            if not html:
+                printf("[bold red]No se pudo decodificar la respuesta base64 del primer paso.")
+                return False
 
             if 'type="submit"' in html:
                 fields = re.findall(r'type="hidden" name="(.*?)" value="(.*?)"', html)
@@ -72,8 +84,16 @@ class DIPERLUKAN:
                     link_form: (None, link_val)
                 }, boundary=boundary)
 
-                response2 = session.post(f'https://zefoy.com/{next_action}', data=data2).text
+                try:
+                    response2 = session.post(f'https://zefoy.com/{next_action}', data=data2, timeout=10).text
+                except RequestException as e:
+                    printf(f"[bold red]Error al reenviar datos: {str(e)}")
+                    return False
+
                 final = self.DECRYPTION_BASE64(response2)
+                if not final:
+                    printf("[bold red]No se pudo decodificar la respuesta base64 del segundo paso.")
+                    return False
 
                 if 'Successfully' in final and 'hearts sent' in final:
                     sent = re.search(r'Successfully (.*?) hearts sent', final).group(1)
@@ -92,7 +112,14 @@ class DIPERLUKAN:
                 return False
 
     def DECRYPTION_BASE64(self, base64_code: str) -> str:
-        return base64.b64decode(urllib.parse.unquote(base64_code[::-1])).decode('utf-8', errors='ignore')
+        try:
+            reversed_str = base64_code[::-1]
+            unquoted_str = urllib.parse.unquote(reversed_str)
+            decoded_bytes = base64.b64decode(unquoted_str)
+            return decoded_bytes.decode('utf-8', errors='ignore')  # Ignorar caracteres no ASCII
+        except Exception as e:
+            printf(f"[bold red]Error al decodificar Base64: {str(e)}")
+            return ""
 
     def DELAY(self, minutes: int, seconds: int) -> None:
         total = minutes * 60 + seconds
