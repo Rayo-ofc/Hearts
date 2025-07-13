@@ -1,6 +1,6 @@
 # TikTok Likes - En Desarrollo
 
-## Instalación y ejecución
+## Instalaciónes Vía Termux o Linux
 
 ```bash
 git clone https://github.com/Rayo-ofc/Hearts
