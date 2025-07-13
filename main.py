@@ -92,7 +92,7 @@ class DIPERLUKAN:
                 return False
 
     def DECRYPTION_BASE64(self, base64_code: str) -> str:
-        return base64.b64decode(urllib.parse.unquote(base64_code[::-1])).decode()
+        return base64.b64decode(urllib.parse.unquote(base64_code[::-1])).decode('utf-8', errors='ignore')
 
     def DELAY(self, minutes: int, seconds: int) -> None:
         total = minutes * 60 + seconds
