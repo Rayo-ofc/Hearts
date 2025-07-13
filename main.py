@@ -12,7 +12,7 @@ except ModuleNotFoundError as e:
     __import__('sys').exit(f"Error: {str(e).capitalize()}!")
 
 COOKIES, SUKSES, LOGOUT, GAGAL = {
-    "Cookie": None
+    "Cookie": "PHPSESSID=3qqs59482qg6k1739efj4p3863;"
 }, [], [], []
 
 class DIPERLUKAN:
@@ -20,43 +20,10 @@ class DIPERLUKAN:
         pass
 
     def LOGIN(self) -> bool:
-        with requests.Session() as session:
-            session.headers.update({
-                'Host': 'zefoy.com',
-                'User-Agent': 'Mozilla/5.0',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Accept': '*/*'
-            })
-            response = session.get('https://zefoy.com/').text
-            if 'Sorry, you have been blocked' in str(response):
-                printf(Panel("[bold red]Blocked by Cloudflare! Visit zefoy.com manually to solve.", width=60))
-                sys.exit()
-
-            self.captcha_image = re.search(r'src="(.*?)" onerror', response).group(1).replace('amp;', '')
-            self.form = re.search(r'type="text" id="captchatoken" name="(.*?)"', response).group(1)
-
-            response2 = session.get('https://zefoy.com{}'.format(self.captcha_image))
-            os.makedirs("Penyimpanan", exist_ok=True)
-            with open('Penyimpanan/Gambar.png', 'wb') as f:
-                f.write(response2.content)
-
-            session.headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
-            data = {self.form: self.BYPASS_CAPTCHA()}
-            response3 = session.post('https://zefoy.com/', data=data).text
-
-            if 'placeholder="Enter Video URL"' in response3:
-                COOKIES.update({
-                    "Cookie": "; ".join([f"{x}={y}" for x, y in session.cookies.get_dict().items()])
-                })
-                printf("[bold green]LOGIN SUCCESSFUL!")
-                return True
-            else:
-                printf("[bold red]LOGIN FAILED!")
-                return False
+        return True
 
     def BYPASS_CAPTCHA(self) -> str:
-        image = Image.open('Penyimpanan/Gambar.png')
-        return pytesseract.image_to_string(image).replace('\n', '')
+        return ""
 
     def MENDAPATKAN_FORMULIR(self, video_url: str) -> bool:
         with requests.Session() as session:
@@ -69,10 +36,7 @@ class DIPERLUKAN:
 
             if 'placeholder="Enter Video URL"' in response:
                 self.video_form = re.search(r'name="(.*?)" placeholder="Enter Video URL"', response).group(1)
-
-                # HEARTS form = index [1]
                 self.post_action = re.findall(r'action="(.*?)">', response)[1]
-
                 printf("[bold green]Formulario de HEARTS encontrado!")
                 time.sleep(1.5)
                 self.MENGIRIMKAN_TAMPILAN(self.video_form, self.post_action, video_url)
@@ -147,10 +111,7 @@ class MAIN:
         if 'tiktok.com' in video_url:
             while True:
                 try:
-                    if COOKIES["Cookie"] is None:
-                        DIPERLUKAN().LOGIN()
-                    else:
-                        DIPERLUKAN().MENDAPATKAN_FORMULIR(video_url)
+                    DIPERLUKAN().MENDAPATKAN_FORMULIR(video_url)
                 except KeyboardInterrupt:
                     printf("\n[bold red]Cancelado por el usuario.")
                     break
