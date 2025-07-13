@@ -162,7 +162,7 @@ class MAIN:
 
     def TAMPILKAN_LOGO(self):
         os.system('cls' if os.name == 'nt' else 'clear')
-        printf(Panel("[bold green]ZEFOY HEARTS BOOSTER v1.0", width=60))
+        printf(Panel("[bold green]LIKES TIKTOK POWER BY RAYO-OFC V1.0", width=60))
 
 if __name__ == "__main__":
     MAIN()
