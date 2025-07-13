@@ -1,2 +1,2 @@
-# Hearts
-Support me to continue updating the project  ☄
+# Likes
+Developed by Rayo-ofc 
